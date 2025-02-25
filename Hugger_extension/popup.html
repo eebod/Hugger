@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LinkedIn Hugger</title>
+    <link rel="stylesheet" href="./popup.css">
+</head>
+<body class="bg-white min-h-screen">
+  <div class="w-[350px] p-6 bg-white shadow-lg">
+      <div class="flex flex-col items-center space-y-4">
+
+          <!-- Extension Name -->
+          <div class="text-center mb-3">
+            <h1 class="text-xl font-semibold text-gray-800">Linkedin Hugger</h1>
+          </div>
+
+          <!-- Profile Image Container -->
+          <div class="relative w-24 h-24">
+              <!-- Background Circle -->
+              <div class="absolute inset-0 rounded-full bg-gradient-to-b from-gray-100 to-gray-200"></div>
+              <!-- Image -->
+              <img 
+                  src="./assets/user.png" 
+                  alt="Profile Picture"
+                  class="absolute inset-0 w-full h-full object-cover rounded-full border-2 border-gray-100 shadow-md"
+                  id="profileImage"
+              />
+          </div>
+
+          <!-- Profile Info -->
+          <div class="text-center space-y-1">
+              <h1 class="text-lg font-semibold text-gray-800" id="profileName">&lt;username&gt;</h1>
+              <p class="text-sm text-gray-600">LinkedIn Profile</p>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="flex gap-3 w-full pt-2">
+              <button id="save" class="flex-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors duration-200 text-sm font-medium shadow-sm hover:shadow-md disabled:bg-gray-400 disabled:cursor-not-allowed" disabled>
+                  Save to sheet
+              </button>
+              <button id="view" class="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors duration-200 text-sm font-medium shadow-sm hover:shadow-md disabled:bg-gray-400 disabled:cursor-not-allowed">
+                  View sheet
+              </button>
+          </div>
+
+
+          <!-- Error alert -->
+          <div class="w-full pt-2 hidden" id="errorContainer">
+            <p class="p-4 text-xs font-bold text-center bg-red-100 border-red-500 text-black border-l-4 shadow-md" id="errorCtx">
+              You're not on a Linkedin Profile-page!
+            </p>
+          </div>
+
+          <!-- Footer -->
+          <div class="pt-4 text-center text-xs text-gray-700">
+              <p>Built with <span class="font-bold">Tailwindcss</span> and <span class="font-bold">'just javascript'</span></p>
+              <p>&gt;&gt;<a href="https://ebode.dev" target="_blank" class="text-blue-400 font-bold underline cursor-pointer"> meet-me</a></p>
+          </div>
+      </div>
+  </div>
+  <script src="./popup.js"></script>
+</body>
+</html>
