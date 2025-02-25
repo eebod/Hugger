@@ -9,11 +9,11 @@ They both work together as a part of the complete solution.
 
 ## Hugger_extension
 The Hugger_extension is a browser-extension(Developed for Chrome), that gets installed on a browser, correctly gets and render a user's image and name data, and then sends the user url to to the google sheet.
-More information on how the extension works is provided in its own folder readme [here](https://github.com/eebod/Hugger/blob/main/Hugger_extension/README.md)
+More information on how the extension works is provided in its own folder readme [here](https://github.com/eebod/Hugger/blob/main/Googlesheet/readme.md)
 
 ## Googlesheet (appscript file)
 The Googlesheet folder contains an appscript for a Google's spreadsheet that listens and receives the URL(sent from the extension), uses a service provider to get the user data, and appends the formatted user data to the previous documents in the sheet.
-More information is provided in its readme file [here](https://github.com/eebod/Hugger/blob/main/Googlesheet/README.md).
+More information is provided in its readme file [here](https://github.com/eebod/Hugger/blob/main/Hugger_extension/readme.md).
 
 ## Watch me use this project
 <!-- [![Watch me use this project](<img-link>)](<video-url>)  
