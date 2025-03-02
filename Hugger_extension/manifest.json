@@ -1,6 +1,6 @@
 {
   "action": {
-    "default_icon": "./assets/icons/ext-icon.png",
+    "default_icon": "./resource/assets/icons/ext-icon.png",
     "default_popup": "popup.html"
   },
   "content_scripts": [
@@ -11,9 +11,9 @@
   ],
   "description": "Saving Linkedin data to Googlesheet",
   "icons": {
-    "16": "./assets/icons/ext-icon.png",
-    "64": "./assets/icons/ext-icon.png",
-    "128": "./assets/icons/ext-icon.png"
+    "16": "./resource/assets/icons/ext-icon.png",
+    "64": "./resource/assets/icons/ext-icon.png",
+    "128": "./resource/assets/icons/ext-icon.png"
   },
   "manifest_version": 3,
   "name": "Linkedin Hugger",

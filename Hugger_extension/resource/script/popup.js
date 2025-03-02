@@ -1,6 +1,6 @@
 // GLOBALS for easy swap out for repo user
 const GOOGLE_SHEET_VIEW = 'https://docs.google.com/spreadsheets/d/1CxqrWuTxWWBQjOYARS-dscviporwcoPacoK8jv-uSbg'; // Ensure to set appropriate sheet view
-const GOOGLE_SHEET_APPSCRIPT_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwLNBbULG_x5wMQJwE4-QgSqdiR97Pr3M_32R7OtASfKvaX17yzZxCvgzxsa9voVrud/exec'; // After deploying and authorizing appscript in googlesheet, copy url and replace
+const GOOGLE_SHEET_APPSCRIPT_ENDPOINT = 'https://script.google.com/macros/s/AKfycbz_FJYtsLDt35x5Fukv5NsnBC9WT0TdSsjZecysSfwcYHeSgOgPeSmHge9OYsSOdkkR/exec'; // After deploying and authorizing appscript in googlesheet, copy url and replace
 
 // Perform action when loaded
 document.addEventListener('DOMContentLoaded', async () => {

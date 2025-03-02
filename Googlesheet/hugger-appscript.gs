@@ -1,114 +1,164 @@
 const API_KEY = '<Provide Your API KEY>';
 const API_PROVIDER_URL = 'https://rapidapi.com/rockapis-rockapis-default/api/linkedin-data-api'; // Provides free 50 calls per month || Can also be paired with other similar provider on the rapidapi platform, to maximize free tier usage.
 
-async function doPost(e) {
-    try {
-      // Parse the POST data
-      var postData = JSON.parse(e.postData.contents);
-      
-      // Process the data
-      const profileData = await makePostRequest(postData.url);
-      appendToSheet(profileData, postData.url);
-      
-      // Return a success response
-      return ContentService.createTextOutput(JSON.stringify({
-        status: 'success',
-        message: 'Data received successfully'
-      }))
-      .setMimeType(ContentService.MimeType.JSON);
-      
-    } catch(error) {
-      // Return an error response
-      return ContentService.createTextOutput(JSON.stringify({
-        status: 'error',
-        message: error.toString()
-      }))
-      .setMimeType(ContentService.MimeType.JSON);
-    }
+aasync function doPost(e) {
+  try {
+    // Parse the POST data
+    const postData = JSON.parse(e.postData.contents);
+    
+    // Process the data
+    const profileData = await makePostRequest(postData.url);
+    appendToSheet(profileData, postData.url);
+    
+    // Return a success response
+    return ContentService.createTextOutput(JSON.stringify({
+      status: 'success',
+      message: 'Data received successfully'
+    }))
+    .setMimeType(ContentService.MimeType.JSON);
+    
+  } catch(error) {
+    // Log the error for debugging
+    Logger.log(`Error in doPost: ${error.toString()}`);
+    
+    // Return an error response
+    return ContentService.createTextOutput(JSON.stringify({
+      status: 'error',
+      message: error.toString()
+    }))
+    .setMimeType(ContentService.MimeType.JSON);
   }
+}
+
+async function makePostRequest(urldata) {
+  // URL to send the request to
+  const url = `https://linkedin-data-api.p.rapidapi.com/get-profile-data-by-url?url=${encodeURIComponent(urldata)}`;
   
-  async function makePostRequest(urldata) {
-    // URL to send the request to
-    const url = `https://linkedin-data-api.p.rapidapi.com/get-profile-data-by-url?url=${urldata}`;
+  // Request parameters
+  const params = {
+    'method': 'GET',
+    'headers': {
+      'x-rapidapi-key': API_KEY,
+      'x-rapidapi-host': 'linkedin-data-api.p.rapidapi.com'
+    },
+    'muteHttpExceptions': true
+  };
+  
+  try {
+    // Make the request
+    const response = UrlFetchApp.fetch(url, params);
     
-    // Request parameters
-    var params = {
-      'method': 'GET',
-      'headers': {
-        'x-rapidapi-key': API_KEY,
-        'x-rapidapi-host': 'linkedin-data-api.p.rapidapi.com'
-      },
-      'muteHttpExceptions': true
-    };
+    // Check HTTP status code
+    const responseCode = response.getResponseCode();
+    if (responseCode !== 200) {
+      throw new Error(`HTTP request failed with status code: ${responseCode}`);
+    }
     
+    // Get and parse response content
+    const responseContent = response.getContentText();
+    if (!responseContent) {
+      throw new Error('Empty response received');
+    }
+    
+    return JSON.parse(responseContent);
+  } catch(error) {
+    Logger.log(`Error making API request: ${error}`);
+    throw error;
+  }
+}
+
+function appendToSheet(data, url) {
+  // Get the active spreadsheet
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+
+  // Create data arrival date
+  const arrivalDate = Utilities.formatDate(new Date(), 'WAT', 'dd.MM.yyyy');
+
+  // Helper function to safely get data from nested objects
+  const safeGet = (obj, path, defaultValue = '-') => {
     try {
-      // Make the request
-      const response = UrlFetchApp.fetch(url, params);
+      const keys = path.split('.');
+      let result = obj;
       
-      // Get response content
-      const responseContent = response.getContentText();
-      
-      // Parse JSON response
-      if (responseContent) {
-        return JSON.parse(responseContent);
-  
+      for (const key of keys) {
+        if (result === null || result === undefined || typeof result !== 'object') {
+          return defaultValue;
+        }
+        result = result[key];
       }
-      throw new Error('Fetch failed')
-    } catch(error) {
-      Logger.log('Error making POST request: ' + error);
-      throw error;
+      
+      return result || defaultValue;
+    } catch (e) {
+      return defaultValue;
     }
+  };
+  
+  // Helper function to format education/position/certification entries
+  const formatEducation = (edu) => {
+    if (!edu) return '-';
+    
+    return [
+      safeGet(edu, 'grade', ''),
+      safeGet(edu, 'degree', ''),
+      safeGet(edu, 'fieldOfStudy', ''),
+      safeGet(edu, 'schoolName', '')
+    ].filter(Boolean).join(' ') || '-';
+  };
+  
+  const formatPosition = (pos) => {
+    if (!pos) return '-';
+    
+    const title = safeGet(pos, 'title', '');
+    const company = safeGet(pos, 'companyName') ? `at ${safeGet(pos, 'companyName')}` : '';
+    const location = safeGet(pos, 'location') ? `${safeGet(pos, 'location')}` : '';
+    
+    return [title, company, location].filter(Boolean).join(', ') || '-';
+  };
+  
+  const formatCertification = (cert) => {
+    if (!cert) return '-';
+    
+    const name = safeGet(cert, 'name', '');
+    const authority = safeGet(cert, 'authority') ? `from ${safeGet(cert, 'authority')}` : '';
+    
+    return [name, authority].filter(Boolean).join(' ') || '-';
+  };
+  
+  // Prepare the data row
+  const dataRow = [
+    safeGet(data, 'profilePicture'),
+    safeGet(data, 'firstName'),
+    safeGet(data, 'lastName'),
+    safeGet(data, 'headline'),
+    safeGet(data, 'geo.full'),
+    
+    formatEducation(safeGet(data, 'educations.0', null)),
+    
+    formatPosition(safeGet(data, 'fullPositions.0', null)),
+    formatPosition(safeGet(data, 'fullPositions.1', null)),
+    formatPosition(safeGet(data, 'fullPositions.2', null)),
+    
+    formatCertification(safeGet(data, 'certifications.0', null)),
+    formatCertification(safeGet(data, 'certifications.1', null)),
+    
+    safeGet(data, 'skills.0.name'),
+    safeGet(data, 'skills.1.name'),
+    safeGet(data, 'skills.2.name'),
+    
+    url,
+    arrivalDate
+  ];
+
+  // Append the data row to the active sheet
+  sheet.appendRow(dataRow);
+
+  // Get the last row that was just added
+  const lastRow = sheet.getLastRow();
+  
+  // Apply the IMAGE formula to the cell if there's an image URL
+  const profilePicture = safeGet(data, 'profilePicture', null);
+  if (profilePicture && profilePicture !== '-') {
+    // Replace the URL with the IMAGE function
+    sheet.getRange(lastRow, 1).setFormula(`=IMAGE("${profilePicture}")`);
   }
-  
-  function appendToSheet(data, url){
-    // Get the active spreadsheet
-    let sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-  
-    // Create data arrival date
-    let arrivalDate =  Utilities.formatDate(new Date(), 'WAT', 'dd.MM.yyyy');
-  
-    const databox = [];
-  
-    databox.push(data.profilePicture || '-')
-    databox.push(data.firstName || '-' );
-    databox.push(data.lastName || '-' );
-    databox.push(data.headline || '-' );
-    databox.push(data.geo?.full || '-');
-    
-    
-    databox.push( data.educations[0] ? `${data.educations[0].grade ? data.educations[0].grade+' ' : ''}${data.educations[0].degree ? data.educations[0].degree+' ' : ''}${data.educations[0].fieldOfStudy ? data.educations[0].fieldOfStudy+' ' : ''}${ data.educations[0].schoolName ? data.educations[0].schoolName+' ' : ''}` : `-`);
-    
-    databox.push( data.educations[1] ? `${data.educations[1].grade ? data.educations[0].grade+' ' : ''}${data.educations[1].degree ? data.educations[1].degree+' ' : ''}${data.educations[1].fieldOfStudy ? data.educations[1].fieldOfStudy+' ' : ''}${ data.educations[1].schoolName ? data.educations[1].schoolName+' ' : ''}` : `-`);
-  
-  
-    databox.push( data.fullPositions[0] ? `${data.fullPositions[0].title ? data.fullPositions[0].title+' ' : ''}${data.fullPositions[0].companyName ? 'at '+data.fullPositions[0].companyName+', ' : ''}${data.fullPositions[0].location ? data.fullPositions[0].location+'.' : ''}` : `-`);
-  
-    databox.push( data.fullPositions[1] ? `${data.fullPositions[1].title ? data.fullPositions[1].title+' ' : ''}${data.fullPositions[1].companyName ? 'at '+data.fullPositions[1].companyName+', ' : ''}${data.fullPositions[1].location ? data.fullPositions[1].location+'.' : ''}` : `-`);
-  
-    databox.push( data.fullPositions[2] ? `${data.fullPositions[2].title ? data.fullPositions[2].title+' ' : ''}${data.fullPositions[2].companyName ? 'at '+data.fullPositions[2].companyName+', ' : ''}${data.fullPositions[2].location ? data.fullPositions[2].location+'.' : ''}` : `-`);
-  
-    databox.push( data.certifications[0] ? `${data.certifications[0].name ? data.certifications[0].name+' ' : ''}${data.certifications[0].authority ? 'from '+data.certifications[0].authority+'.' : ''}` : `-`);
-  
-    databox.push( data.certifications[1] ? `${data.certifications[1].name ? data.certifications[1].name+' ' : ''}${data.certifications[1].authority ? 'from '+data.certifications[1].authority+'.' : ''}` : `-`);
-  
-    
-    databox.push(data.skills[0]?.name || '-');
-    databox.push(data.skills[1]?.name || '-');
-    databox.push(data.skills[2]?.name || '-');
-  
-  
-    databox.push(url);
-    databox.push(arrivalDate);
-  
-    // Append the email to the active sheet
-    sheet.appendRow(databox);
-  
-    // Get the last row that was just added
-    const lastRow = sheet.getLastRow();
-    
-    // Apply the IMAGE formula to the cell if there's an image URL
-    if (data.profilePicture) {
-      // Replace the URL with the IMAGE function
-      sheet.getRange(lastRow, 1).setFormula(`=IMAGE("${data.profilePicture}")`);
-    }
-  }
+}
