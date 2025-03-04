@@ -16,12 +16,11 @@ The Googlesheet folder contains an appscript for a Google's spreadsheet that lis
 More information is provided in its readme file [here](https://github.com/eebod/Hugger/blob/main/Hugger_extension/readme.md).
 
 ## Watch me use this project
-<!-- [![Watch me use this project](<img-link>)](<video-url>)  
-Click on Image to Youtube video or use link: <video-url> -->
+Click link to watch Youtube video: https://youtu.be/Ka0hrKp7h5Y
 
 ## Help Improve
 You can also contribute to improving how this works, by sending in a pull request. It can be to fix a problem, improve a section, or to add a new feature.
 
 ## Reach me
 This was written and developed by me, Ebode.
-You can find more adventurous solutions I have developed in my corner [here](https://ebode.dev).
+You can find more adventurous solutions I have developed in my corner [here](https://www.ebode.dev).
